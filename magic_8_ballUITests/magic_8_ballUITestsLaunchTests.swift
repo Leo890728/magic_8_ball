@@ -1,13 +1,13 @@
 //
-//  AnswerBookUITestsLaunchTests.swift
-//  AnswerBookUITests
+//  magic_8_ballUITestsLaunchTests.swift
+//  magic_8_ballUITests
 //
-//  Created by 林政佑 on 2025/7/29.
+//  Created by 林政佑 on 2025/8/4.
 //
 
 import XCTest
 
-final class AnswerBookUITestsLaunchTests: XCTestCase {
+final class magic_8_ballUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

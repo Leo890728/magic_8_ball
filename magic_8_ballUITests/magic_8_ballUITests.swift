@@ -1,13 +1,13 @@
 //
-//  AnswerBookUITests.swift
-//  AnswerBookUITests
+//  magic_8_ballUITests.swift
+//  magic_8_ballUITests
 //
-//  Created by 林政佑 on 2025/7/29.
+//  Created by 林政佑 on 2025/8/4.
 //
 
 import XCTest
 
-final class AnswerBookUITests: XCTestCase {
+final class magic_8_ballUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

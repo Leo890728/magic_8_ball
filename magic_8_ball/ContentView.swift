@@ -1,16 +1,28 @@
 //
 //  ContentView.swift
-//  AnswerBook
+//  magic_8_ball
 //
-//  Created by 林政佑 on 2025/7/29.
+//  Created by 林政佑 on 2025/8/4.
 //
 
 import SwiftUI
+
+// 新增歷史記錄結構
+struct AnswerRecord: Identifiable {
+    let id = UUID()
+    let question: String
+    let answer: String
+    let englishAnswer: String
+    let type: ContentView.MagicAnswerType
+    let timestamp: Date
+}
 
 struct ContentView: View {
     @State private var question = ""
     @State private var currentAnswer = (MagicAnswerType.neutral, "", "")
     @State private var showAnswer = false
+    @State private var answerHistory: [AnswerRecord] = []
+    @State private var showHistory = false
     
     enum MagicAnswerType {
         case affirmative
@@ -54,16 +66,31 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 30) {
-            Text("神奇八號球")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
+            // 標題和歷史記錄按鈕
+            HStack {
+                Spacer()
+                
+                Text("神奇八號球")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                
+                Spacer()
+                
+                Button(action: {
+                    showHistory = true
+                }) {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .font(.title2)
+                        .foregroundColor(.blue)
+                }
+            }
+            .padding(.horizontal)
             
             Text("問一個問題，點擊按鈕獲得答案")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             
-            // Question input
             VStack(alignment: .leading, spacing: 8) {
                 Text("你的問題：")
                     .font(.headline)
@@ -75,7 +102,6 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             
-            // Magic 8-ball style answer display
             ZStack {
                 Circle()
                     .fill(
@@ -148,11 +174,17 @@ struct ContentView: View {
         .padding()
         .background(
             LinearGradient(
-                gradient: Gradient(colors: [Color(.systemBackground), Color(.secondarySystemBackground)]),
+                gradient: Gradient(colors: [
+                    Color(uiColor: .systemBackground),
+                    Color(uiColor: .secondarySystemBackground)
+                ]),
                 startPoint: .top,
                 endPoint: .bottom
             )
         )
+        .sheet(isPresented: $showHistory) {
+            HistoryView(answerHistory: answerHistory)
+        }
     }
     
     private func getAnswer() {
@@ -162,6 +194,16 @@ struct ContentView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             currentAnswer = answers.randomElement() ?? (MagicAnswerType.neutral, "請再試一次", "Please try again")
+            
+            // 添加到歷史記錄
+            let record = AnswerRecord(
+                question: question,
+                answer: currentAnswer.1,
+                englishAnswer: currentAnswer.2,
+                type: currentAnswer.0,
+                timestamp: Date()
+            )
+            answerHistory.insert(record, at: 0) // 最新的記錄在前面
             
             withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
                 showAnswer = true
@@ -174,6 +216,86 @@ struct ContentView: View {
             showAnswer = false
         }
         question = ""
+    }
+}
+
+// 新增歷史記錄視圖
+struct HistoryView: View {
+    let answerHistory: [AnswerRecord]
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                if answerHistory.isEmpty {
+                    VStack(spacing: 20) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                        
+                        Text("還沒有任何記錄")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                        
+                        Text("開始問問題來建立你的解答歷史吧！")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding()
+                    Spacer()
+                } else {
+                    List {
+                        ForEach(answerHistory) { record in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("問題：")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                    
+                                    Spacer()
+                                    
+                                    Text(record.timestamp, style: .time)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                Text(record.question)
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                                
+                                HStack {
+                                    Circle()
+                                        .fill(record.type.color)
+                                        .frame(width: 8, height: 8)
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(record.answer)
+                                            .font(.body)
+                                            .foregroundColor(record.type.color)
+                                        
+                                        Text(record.englishAnswer)
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .padding(.top, 4)
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
+            }
+            .navigationTitle("解答記錄")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("完成") {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 

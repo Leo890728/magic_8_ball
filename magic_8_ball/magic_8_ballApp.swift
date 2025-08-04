@@ -1,14 +1,14 @@
 //
-//  AnswerBookApp.swift
-//  AnswerBook
+//  magic_8_ballApp.swift
+//  magic_8_ball
 //
-//  Created by 林政佑 on 2025/7/29.
+//  Created by 林政佑 on 2025/8/4.
 //
 
 import SwiftUI
 
 @main
-struct AnswerBookApp: App {
+struct magic_8_ballApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
